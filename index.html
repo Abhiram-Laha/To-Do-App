@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="todo-container">
+    <h1>To-Do List</h1>
+    
+    <!-- Input area for tasks -->
+    <div class="input-container">
+      <input type="text" id="task-input" placeholder="Add a new task...">
+      
+      <!-- Row with due date and priority dropdown -->
+      <div class="input-row">
+        <input type="date" id="due-date" placeholder="Due Date">
+        <select id="priority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      
+      <!-- Button to add task -->
+      <button id="add-btn">Add Task</button>
+    </div>
+
+    <!-- Filter buttons -->
+    <div class="filter-buttons">
+      <button class="filter-btn active" onclick="filterTasks('all')">All</button>
+      <button class="filter-btn" onclick="filterTasks('completed')">Completed</button>
+      <button class="filter-btn" onclick="filterTasks('incomplete')">Incomplete</button>
+      <button id="clear-completed-btn" onclick="clearCompletedTasks()">Clear Completed</button>
+    </div>
+
+    <!-- Task list -->
+    <ul id="task-list"></ul>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // JavaScript code for handling tasks and interactions
+    const addButton = document.getElementById('add-btn');
+    const taskInput = document.getElementById('task-input');
+    const dueDateInput = document.getElementById('due-date');
+    const priorityInput = document.getElementById('priority');
+    const taskList = document.getElementById('task-list');
+
+    addButton.addEventListener('click', () => {
+      const taskText = taskInput.value.trim();
+      const dueDate = dueDateInput.value;
+      const priority = priorityInput.value;
+      
+      if (taskText) {
+        addTask(taskText, dueDate, priority);
+        taskInput.value = '';
+        dueDateInput.value = '';
+        priorityInput.value = 'Low';
+      }
+    });
+
+    function addTask(taskText, dueDate, priority) {
+      const taskItem = document.createElement('li');
+      taskItem.classList.add('task');
+
+      taskItem.innerHTML = `
+        <div class="task-text">
+          <span>${taskText}</span>
+          <small class="task-due-date">${dueDate ? 'Due: ' + dueDate : ''}</small>
+          <small class="task-priority priority-${priority.toLowerCase()}">Priority: ${priority}</small>
+        </div>
+        <div class="task-actions">
+          <button class="edit-btn" onclick="editTask(this)">✏️</button>
+          <button class="delete-btn" onclick="deleteTask(this)">❌</button>
+        </div>
+      `;
+      
+      taskList.appendChild(taskItem);
+    }
+
+    function deleteTask(button) {
+      const taskItem = button.parentElement.parentElement;
+      taskList.removeChild(taskItem);
+    }
+
+    function filterTasks(status) {
+      const tasks = taskList.children;
+      for (let task of tasks) {
+        switch (status) {
+          case 'all':
+            task.style.display = 'flex';
+            break;
+          case 'completed':
+            task.classList.contains('completed') ? task.style.display = 'flex' : task.style.display = 'none';
+            break;
+          case 'incomplete':
+            !task.classList.contains('completed') ? task.style.display = 'flex' : task.style.display = 'none';
+            break;
+        }
+      }
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.filter-btn[onclick="filterTasks('${status}')"]`).classList.add('active');
+    }
+
+    function clearCompletedTasks() {
+      const tasks = taskList.querySelectorAll('.task.completed');
+      tasks.forEach(task => taskList.removeChild(task));
+    }
+
+    function editTask(button) {
+      const taskText = button.parentElement.parentElement.querySelector('.task-text span');
+      const newTaskText = prompt('Edit task:', taskText.textContent);
+      if (newTaskText) {
+        taskText.textContent = newTaskText;
+      }
+    }
+  </script>
+</body>
+</html>
